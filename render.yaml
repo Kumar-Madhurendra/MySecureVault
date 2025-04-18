@@ -5,6 +5,7 @@ services:
     rootDir: .
     dockerfilePath: Dockerfile
     dockerContext: .
+    healthCheckPath: /health
     envVars:
       - key: APP_NAME
         value: MySecureVault
@@ -19,6 +20,8 @@ services:
           type: web
           name: laravel-app
           property: host
+      - key: TRUSTED_PROXIES
+        value: "*"
       - key: DB_CONNECTION
         value: mongodb
       - key: MONGO_DB_URI

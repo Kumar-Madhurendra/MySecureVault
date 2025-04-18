@@ -119,6 +119,12 @@ return [
             'options' => [
                 'database' => env('MONGO_DB_AUTHENTICATION_DATABASE', 'admin'),
                 'maxTimeMS' => 300000, // 5 minutes
+                'retryWrites' => true,
+                'w' => 'majority',
+                'readPreference' => 'primary',
+                'connectTimeoutMS' => 60000,
+                'socketTimeoutMS' => 60000,
+                'serverSelectionTimeoutMS' => 60000,
             ],
         ],
 

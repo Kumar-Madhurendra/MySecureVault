@@ -1,8 +1,8 @@
-// Fonts
+// Import Google Fonts
 @import url('https://fonts.bunny.net/css?family=Nunito');
 
-// Variables
-@import 'variables';
+// Use modern Sass syntax
+@use 'variables' as *;
+@use 'bootstrap/scss/bootstrap' as *;
 
-// Bootstrap
-@import 'bootstrap/scss/bootstrap';
+// Your custom styles below
