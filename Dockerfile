@@ -22,7 +22,10 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-RUN npm run build
+# Set NODE_ENV to production to suppress deprecation warnings
+ENV NODE_ENV=production \
+    SASS_DEPRECATE_WARNINGS=0
+RUN npm run prod
 
 FROM php-base as final
 # Install nginx
