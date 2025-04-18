@@ -118,6 +118,7 @@ return [
             'database' => env('MONGO_DB_DATABASE', 'my_project'),
             'options' => [
                 'database' => env('MONGO_DB_AUTHENTICATION_DATABASE', 'admin'),
+                'maxTimeMS' => 300000, // 5 minutes
             ],
         ],
 

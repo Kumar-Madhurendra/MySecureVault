@@ -1,61 +1,170 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel Project with MongoDB
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This is a Laravel project that uses MongoDB as its database and is configured for deployment on Render.
 
-## About Laravel
+## Prerequisites
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP >= 8.2
+- Composer
+- Node.js >= 16 and npm
+- MongoDB
+- Git
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Local Development Setup
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. **Clone the repository**
+```bash
+git clone <your-repository-url>
+cd <project-directory>
+```
 
-## Learning Laravel
+2. **Install PHP Dependencies**
+```bash
+composer install
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+3. **Install Node.js Dependencies**
+```bash
+npm install
+```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+4. **Environment Configuration**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+5. **Configure MongoDB**
+Update your `.env` file with your MongoDB connection:
+```
+DB_CONNECTION=mongodb
+MONGODB_URI=your_mongodb_connection_string
+```
 
-## Laravel Sponsors
+6. **Set up the application**
+```bash
+php artisan storage:link
+php artisan migrate
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+7. **Start the Development Server**
 
-### Premium Partners
+In one terminal:
+```bash
+php artisan serve
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development/)**
-- **[Active Logic](https://activelogic.com)**
+In another terminal:
+```bash
+npm run dev
+```
+
+The application will be available at `http://localhost:8000`
+
+## Deployment on Render
+
+### Prerequisites
+1. A Render account
+2. A MongoDB database (can be hosted on MongoDB Atlas)
+3. Your project pushed to a Git repository
+
+### Deployment Steps
+
+1. **Create a New Web Service on Render**
+   - Sign in to your Render account
+   - Click "New +" and select "Web Service"
+   - Connect your repository
+   - Choose "PHP" as the environment
+
+2. **Configure Environment Variables**
+   Set the following environment variables in Render dashboard:
+   - `APP_KEY`: Generate using `php artisan key:generate --show`
+   - `MONGODB_URI`: Your MongoDB connection string
+   - Other variables as needed from your `.env` file
+
+3. **Deploy**
+   - Render will automatically deploy your application using the configuration in `render.yaml`
+   - The build process is defined in `render-build.sh`
+
+### Files for Render Deployment
+
+The repository includes two important files for Render deployment:
+
+1. `render.yaml`: Defines the service configuration
+2. `render-build.sh`: Contains the build and setup commands
+
+## Project Structure
+
+```
+├── app/                 # Application core code
+├── bootstrap/          # App bootstrap and autoloading
+├── config/            # Configuration files
+├── database/         # Database migrations and seeders
+├── public/          # Publicly accessible files
+├── resources/      # Views, raw assets, and translations
+├── routes/        # Application routes
+├── storage/      # Logs, cache, and generated files
+├── tests/       # Test files
+└── vendor/     # Composer dependencies
+```
+
+## Available Commands
+
+```bash
+# Start development server
+php artisan serve
+
+# Run Vite development server
+npm run dev
+
+# Build assets for production
+npm run build
+
+# Run migrations
+php artisan migrate
+
+# Clear cache
+php artisan cache:clear
+
+# Create a new controller
+php artisan make:controller ControllerName
+
+# Create a new model
+php artisan make:model ModelName
+```
+
+## Dependencies
+
+### PHP Dependencies
+- Laravel Framework 12.0
+- Laravel Sanctum 4.0
+- Laravel Tinker 2.10.1
+- Laravel UI 4.6
+- MongoDB Laravel MongoDB 5.0
+
+### Node.js Dependencies
+- Vite
+- TailwindCSS
+- Bootstrap
+- Axios
+- Laravel Vite Plugin
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Support
+
+For support, please open an issue in the GitHub repository or contact the maintainers.
+
+## Security
+
+If you discover any security-related issues, please email the maintainers instead of using the issue tracker.

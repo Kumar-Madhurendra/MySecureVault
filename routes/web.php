@@ -17,11 +17,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/upload-form', function () {
-    return view('upload');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/upload-form', [MediaController::class, 'uploadForm']);
+    Route::post('/upload-media', [MediaController::class, 'uploadMedia']);
+    Route::get('/view-files', [MediaController::class, 'viewFiles']);
+    Route::get('/play-media/{id}', [MediaController::class, 'playMedia']);
 });
 
-Route::post('/upload-media', [MediaController::class, 'uploadMedia']);
+Auth::routes();
 
-// Add route to view uploaded files
-Route::get('/view-files', [MediaController::class, 'viewFiles']);
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

@@ -7,11 +7,19 @@ use Illuminate\Http\Request;
 
 class MediaController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+    public function uploadForm()
+    {
+        return view('upload');
+    }
+
     public function uploadMedia(Request $request)
     {
         $request->validate([
-            'uploader_name' => 'required|string|max:255',
-            'uploader_email' => 'required|email|max:255',
             'media' => 'required|file|mimes:mp4,mov,avi,mp3,wav,pdf,doc,docx,txt,jpg,jpeg,png,gif|max:20480' // 20MB limit
         ]);
 
@@ -31,8 +39,9 @@ class MediaController extends Controller
             'content' => $content,
             'mime_type' => $file->getMimeType(),
             'size' => $file->getSize(),
-            'uploader_name' => $request->uploader_name,
-            'uploader_email' => $request->uploader_email,
+            'uploader_name' => auth()->user()->name,
+            'uploader_email' => auth()->user()->email,
+            'user_id' => auth()->id(),
             'upload_date' => now()
         ]);
 
@@ -55,7 +64,19 @@ class MediaController extends Controller
 
     public function viewFiles()
     {
-        $files = Media::all();
+        $files = Media::where('user_id', auth()->id())->get();
         return view('view-files', ['files' => $files]);
+    }
+
+    public function playMedia($id)
+    {
+        $media = Media::findOrFail($id);
+        
+        // Check if user owns this media
+        if ($media->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        return view('play-media', ['media' => $media]);
     }
 }
