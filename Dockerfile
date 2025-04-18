@@ -20,12 +20,12 @@ RUN pecl install mongodb-1.16.2 \
 FROM node:18 as node-builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm install --production=false
 COPY . .
-# Set NODE_ENV to production to suppress deprecation warnings
+# Set NODE_ENV and run build
 ENV NODE_ENV=production \
-    SASS_DEPRECATE_WARNINGS=0
-RUN npm run prod
+    VITE_APP_ENV=production
+RUN npm run build
 
 FROM php-base as final
 # Install nginx
