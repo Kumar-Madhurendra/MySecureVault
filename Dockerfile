@@ -1,4 +1,4 @@
-FROM php:8.2-fpm
+FROM php:8.2-fpm as php-base
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -8,46 +8,71 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     zip \
-    unzip \
-    nginx \
-    libcurl4-openssl-dev \
-    pkg-config \
-    libssl-dev
-
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+    unzip
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-# Install MongoDB PHP extension
-RUN apt-get update && apt-get install -y libssl-dev && \
-    pecl install mongodb && \
-    docker-php-ext-enable mongodb
+# Install MongoDB extension with better caching
+RUN pecl install mongodb-1.16.2 \
+    && docker-php-ext-enable mongodb
 
-# Get latest Composer
+FROM node:18 as node-builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+FROM php-base as final
+# Install nginx
+RUN apt-get install -y nginx
+
+# Get Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Copy node build artifacts
+COPY --from=node-builder /app/public/build /var/www/html/public/build
 
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy existing application directory
+# Copy composer files first
+COPY composer.json composer.lock ./
+
+# Install composer dependencies
+RUN composer install --no-scripts --no-autoloader --no-dev
+
+# Copy the rest of the application code
 COPY . .
 
-# Install dependencies with verbose output
-RUN composer install --no-interaction --no-dev --optimize-autoloader --verbose
+# Generate optimized autoload files
+RUN composer dump-autoload --optimize
 
-# Generate key
-RUN php artisan key:generate
+# Copy nginx configuration
+COPY docker/nginx/laravel.conf /etc/nginx/conf.d/default.conf
 
-# Nginx configuration
-COPY nginx.conf /etc/nginx/sites-available/default
+# Create storage directory and set permissions
+RUN mkdir -p storage/framework/{sessions,views,cache} \
+    && mkdir -p storage/logs \
+    && chown -R www-data:www-data storage \
+    && chown -R www-data:www-data bootstrap/cache \
+    && chmod -R 775 storage \
+    && chmod -R 775 bootstrap/cache
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Generate Laravel storage link
+RUN php artisan storage:link
 
-# Expose port
-EXPOSE 8080
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost/health || exit 1
 
-# Start PHP-FPM and Nginx
-CMD sh -c "php-fpm -D && nginx -g 'daemon off;'" 
+# Expose port 80
+EXPOSE 80
+
+# Copy and set permissions for start script
+COPY docker/start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
+
+# Start services
+CMD ["/usr/local/bin/start.sh"] 
