@@ -1,8 +1,9 @@
 services:
   - type: web
     name: MySecureVault
-    env: docker
-    dockerfilePath: ./Dockerfile
+    env: ruby
+    buildCommand: ./render-build.sh
+    startCommand: php artisan serve --host 0.0.0.0 --port $PORT
     healthCheckPath: /
     envVars:
       - key: APP_KEY
@@ -39,8 +40,6 @@ services:
         value: tls
       - key: MAIL_FROM_ADDRESS
         sync: false
-    buildCommand: ""
-    startCommand: ""
 
 databases:
   - name: mongodb
