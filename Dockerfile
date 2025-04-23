@@ -7,12 +7,12 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
-    libssl-dev \
-    pkg-config \
-    libcurl4-openssl-dev \
     zip \
     unzip \
-    nginx
+    nginx \
+    libcurl4-openssl-dev \
+    pkg-config \
+    libssl-dev
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -20,8 +20,9 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-# Install MongoDB extension (with proper dependencies)
-RUN pecl install mongodb && \
+# Install MongoDB PHP extension
+RUN apt-get update && apt-get install -y libssl-dev && \
+    pecl install mongodb && \
     docker-php-ext-enable mongodb
 
 # Get latest Composer
@@ -33,8 +34,8 @@ WORKDIR /var/www/html
 # Copy existing application directory
 COPY . .
 
-# Install dependencies
-RUN composer install --no-interaction --no-dev --optimize-autoloader
+# Install dependencies with verbose output
+RUN composer install --no-interaction --no-dev --optimize-autoloader --verbose
 
 # Generate key
 RUN php artisan key:generate
