@@ -2,12 +2,14 @@
 # Exit on error
 set -o errexit
 
-# Install PHP dependencies
-composer install --no-dev --optimize-autoloader
-
-# Install Node.js dependencies
+echo "Installing dependencies..."
 npm ci
+
+echo "Building frontend assets with Vite..."
 npm run build
+
+echo "Install PHP dependencies..."
+composer install --no-dev --optimize-autoloader
 
 # Set up Laravel
 php artisan storage:link
