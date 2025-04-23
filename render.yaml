@@ -2,7 +2,7 @@ services:
   - type: web
     name: laravel-app
     runtime: docker
-    repo: https://github.com/mr-madhu/MySecureVault..git
+    repo: https://github.com/mr-madhu/MySecureVault.git
     branch: main
     buildCommand: ./render-build.sh
     startCommand: ./render-start.sh
