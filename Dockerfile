@@ -1,4 +1,4 @@
-FROM php:8.2-fpm as php-base
+FROM php:8.2-apache
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -8,71 +8,39 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     zip \
-    unzip
+    unzip \
+    npm \
+    nodejs
+
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-# Install MongoDB extension with better caching
-RUN pecl install mongodb-1.16.2 \
-    && docker-php-ext-enable mongodb
-
-FROM node:18 as node-builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
-
-FROM php-base as final
-# Install nginx
-RUN apt-get install -y nginx
-
-# Get Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Copy node build artifacts
-COPY --from=node-builder /app/public/build /var/www/html/public/build
+# Install MongoDB PHP extension - but without requiring compilation
+RUN pecl install mongodb && docker-php-ext-enable mongodb
 
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy composer files first
-COPY composer.json composer.lock ./
+# Copy existing application directory contents
+COPY . /var/www/html
 
-# Install composer dependencies
-RUN composer install --no-scripts --no-autoloader --no-dev
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy the rest of the application code
-COPY . .
+# Set correct permissions
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Generate optimized autoload files
-RUN composer dump-autoload --optimize
+# Install dependencies without MongoDB compilation
+RUN composer install --no-scripts --no-interaction --prefer-dist
 
-# Copy nginx configuration
-COPY docker/nginx/laravel.conf /etc/nginx/conf.d/default.conf
+# Run npm build for assets
+RUN npm install && npm run build
 
-# Create storage directory and set permissions
-RUN mkdir -p storage/framework/{sessions,views,cache} \
-    && mkdir -p storage/logs \
-    && chown -R www-data:www-data storage \
-    && chown -R www-data:www-data bootstrap/cache \
-    && chmod -R 775 storage \
-    && chmod -R 775 bootstrap/cache
+# Expose port
+EXPOSE 8080
 
-# Generate Laravel storage link
-RUN php artisan storage:link
-
-# Add healthcheck
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost/health || exit 1
-
-# Expose port 80
-EXPOSE 80
-
-# Copy and set permissions for start script
-COPY docker/start.sh /usr/local/bin/start.sh
-RUN chmod +x /usr/local/bin/start.sh
-
-# Start services
-CMD ["/usr/local/bin/start.sh"] 
+# Start the server
+CMD php artisan serve --host=0.0.0.0 --port=8080 
