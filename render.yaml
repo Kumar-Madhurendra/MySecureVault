@@ -3,6 +3,7 @@ services:
     name: MySecureVault
     env: docker
     dockerfilePath: ./Dockerfile
+    healthCheckPath: /
     envVars:
       - key: APP_KEY
         generateValue: true
@@ -13,28 +14,31 @@ services:
       - key: DB_CONNECTION
         value: mongodb
       - key: DB_HOST
-        fromDatabase:
-          name: mongodb
-          property: host
+        sync: false
       - key: DB_PORT
-        fromDatabase:
-          name: mongodb
-          property: port
+        value: "27017"
       - key: DB_DATABASE
-        fromDatabase:
-          name: mongodb
-          property: database
+        sync: false
       - key: DB_USERNAME
-        fromDatabase:
-          name: mongodb
-          property: user
+        sync: false
       - key: DB_PASSWORD
-        fromDatabase:
-          name: mongodb
-          property: password
+        sync: false
+      - key: MONGODB_URI
+        sync: false
       - key: MAIL_MAILER
         value: smtp
-      # Add your mail configuration values as needed
+      - key: MAIL_HOST
+        sync: false
+      - key: MAIL_PORT
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_ENCRYPTION
+        value: tls
+      - key: MAIL_FROM_ADDRESS
+        sync: false
     buildCommand: ""
     startCommand: ""
 
