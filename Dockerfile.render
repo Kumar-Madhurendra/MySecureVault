@@ -1,0 +1,59 @@
+FROM php:8.2-apache
+
+WORKDIR /var/www/html
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    npm \
+    nodejs \
+    autoconf \
+    build-essential \
+    libssl-dev \
+    pkg-config
+
+# Install PHP extensions
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+
+# Install MongoDB PHP extension
+RUN pecl install mongodb && docker-php-ext-enable mongodb
+
+# Configure Apache
+RUN a2enmod rewrite
+RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+# Copy application code
+COPY . /var/www/html/
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Create directory structure if not exists
+RUN mkdir -p storage/framework/sessions \
+    storage/framework/views \
+    storage/framework/cache \
+    storage/logs
+
+# Set correct permissions
+RUN chmod -R 775 storage bootstrap/cache
+
+# Install dependencies
+RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+# Build frontend assets
+RUN npm install && npm run build
+
+# Create test files for debugging
+RUN echo "<?php phpinfo(); ?>" > /var/www/html/test.php
+RUN echo "<?php echo 'Public directory test'; ?>" > /var/www/html/public/test.php
+
+# Expose port and start Apache
+EXPOSE 80
+CMD ["apache2-foreground"] 

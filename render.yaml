@@ -1,10 +1,9 @@
 services:
   - type: web
     name: MySecureVault
-    env: php
+    env: docker
     plan: free
-    buildCommand: ./render-build.sh
-    startCommand: apache2-foreground
+    dockerfilePath: Dockerfile.render
     healthCheckPath: /test.php
     envVars:
       - key: APP_KEY
@@ -13,8 +12,6 @@ services:
         value: production
       - key: APP_DEBUG
         value: true
-      - key: APACHE_DOCUMENT_ROOT
-        value: /var/www/html/public
       - key: DB_CONNECTION
         value: mongodb
       - key: DB_HOST
