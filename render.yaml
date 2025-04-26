@@ -2,8 +2,9 @@ services:
   - type: web
     name: MySecureVault
     env: php
+    plan: free
     buildCommand: ./render-build.sh
-    startCommand: apache2-foreground
+    startCommand: PORT=80 apache2-foreground
     healthCheckPath: /health
     envVars:
       - key: APP_KEY
@@ -12,6 +13,8 @@ services:
         value: production
       - key: APP_DEBUG
         value: false
+      - key: APACHE_DOCUMENT_ROOT
+        value: /var/www/html/public
       - key: DB_CONNECTION
         value: mongodb
       - key: DB_HOST
