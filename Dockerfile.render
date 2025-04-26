@@ -112,9 +112,29 @@ RUN npm install && npm run build
 RUN echo '<?php phpinfo(); ?>' > /var/www/html/test.php
 RUN echo '<?php phpinfo(); ?>' > /var/www/html/public/phpinfo.php
 
+# Clear Laravel caches
+RUN php artisan config:clear
+RUN php artisan cache:clear
+RUN php artisan view:clear
+RUN php artisan route:clear
+
+# Create simple static PHP file in case Laravel fails
+RUN echo '<?php echo json_encode(["status" => "OK", "message" => "Static file is working"]); ?>' > /var/www/html/public/static.php
+
 # Make sure all files are readable by Apache
 RUN chown -R www-data:www-data /var/www/html
 
-# Expose port and start Apache
+# Create a startup script to run Laravel migrations
+RUN echo '#!/bin/bash\n\
+echo "Running Laravel migrations and setup..."\n\
+php artisan config:cache\n\
+php artisan route:cache\n\
+php artisan migrate --force\n\
+exec apache2-foreground\n\
+' > /usr/local/bin/start-laravel.sh
+
+RUN chmod +x /usr/local/bin/start-laravel.sh
+
+# Expose port and start Apache with Laravel setup
 EXPOSE 80
-CMD ["apache2-foreground"] 
+CMD ["/usr/local/bin/start-laravel.sh"] 
