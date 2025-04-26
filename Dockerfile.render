@@ -94,6 +94,9 @@ apache2-foreground\n\
 
 RUN chmod +x /usr/local/bin/start-apache
 
+# Install the MongoDB PHP library globally
+RUN composer require mongodb/mongodb --prefer-dist
+
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 

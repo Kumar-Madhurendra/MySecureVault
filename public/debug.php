@@ -69,27 +69,41 @@ echo "<h2>Database Connection Test</h2>";
 if (extension_loaded('mongodb')) {
     echo "<p>MongoDB extension is loaded</p>";
     
-    // Try to get MongoDB connection details from environment
-    $mongoUri = getenv('MONGODB_URI') ?: (getenv('DB_CONNECTION') == 'mongodb' ? 
-        'mongodb://' . getenv('DB_USERNAME') . ':' . getenv('DB_PASSWORD') . '@' . 
-        getenv('DB_HOST') . ':' . getenv('DB_PORT') . '/' . getenv('DB_DATABASE') : null);
-    
-    if ($mongoUri) {
-        echo "<p>Attempting to connect with URI: [REDACTED]</p>";
-        try {
-            $client = new MongoDB\Client($mongoUri);
-            echo "<p>Connection established successfully!</p>";
-            // List databases to verify connection
-            $databaseList = [];
-            foreach ($client->listDatabases() as $db) {
-                $databaseList[] = $db->getName();
+    // Check if mongodb library is installed
+    if (class_exists('MongoDB\Client')) {
+        echo "<p>MongoDB PHP library is installed</p>";
+        
+        // Try to get MongoDB connection details from environment
+        $mongoUri = getenv('MONGODB_URI') ?: (getenv('DB_CONNECTION') == 'mongodb' ? 
+            'mongodb://' . getenv('DB_USERNAME') . ':' . getenv('DB_PASSWORD') . '@' . 
+            getenv('DB_HOST') . ':' . getenv('DB_PORT') . '/' . getenv('DB_DATABASE') : null);
+        
+        if ($mongoUri) {
+            echo "<p>Attempting to connect with URI: [REDACTED]</p>";
+            try {
+                $client = new MongoDB\Client($mongoUri);
+                echo "<p>Connection established successfully!</p>";
+                // List databases to verify connection
+                $databaseList = [];
+                foreach ($client->listDatabases() as $db) {
+                    $databaseList[] = $db->getName();
+                }
+                echo "<p>Available databases: " . implode(", ", $databaseList) . "</p>";
+            } catch (Exception $e) {
+                echo "<p>Connection error: " . $e->getMessage() . "</p>";
             }
-            echo "<p>Available databases: " . implode(", ", $databaseList) . "</p>";
-        } catch (Exception $e) {
-            echo "<p>Connection error: " . $e->getMessage() . "</p>";
+        } else {
+            echo "<p>MongoDB connection URI not available in environment variables</p>";
         }
     } else {
-        echo "<p>MongoDB connection URI not available in environment variables</p>";
+        echo "<p>MongoDB extension is loaded but the PHP library is NOT installed. Run 'composer require mongodb/mongodb'</p>";
+        echo "<p>Installed Composer packages:</p>";
+        if (file_exists(__DIR__ . '/../vendor/composer/installed.json')) {
+            $packages = json_decode(file_get_contents(__DIR__ . '/../vendor/composer/installed.json'), true);
+            echo "<pre>" . print_r($packages, true) . "</pre>";
+        } else {
+            echo "<p>No composer packages found</p>";
+        }
     }
 } else {
     echo "<p>MongoDB extension is NOT loaded</p>";
