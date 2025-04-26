@@ -58,7 +58,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN mkdir -p storage/framework/sessions \
     storage/framework/views \
     storage/framework/cache \
-    storage/logs
+    storage/framework/cache/data \
+    storage/logs \
+    bootstrap/cache
 
 # Set correct permissions
 RUN chmod -R 775 storage bootstrap/cache
@@ -118,6 +120,9 @@ RUN php artisan cache:clear
 RUN php artisan view:clear
 RUN php artisan route:clear
 
+# Publish view files and vendor files
+RUN php artisan vendor:publish --tag=laravel-assets --force
+
 # Create simple static PHP file in case Laravel fails
 RUN echo '<?php echo json_encode(["status" => "OK", "message" => "Static file is working"]); ?>' > /var/www/html/public/static.php
 
@@ -128,8 +133,12 @@ RUN chown -R www-data:www-data /var/www/html
 RUN echo '#!/bin/bash\n\
 echo "Running Laravel migrations and setup..."\n\
 php artisan config:cache\n\
+php artisan view:cache\n\
 php artisan route:cache\n\
 php artisan migrate --force\n\
+echo "Ensuring directory permissions..."\n\
+chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache\n\
+chown -R www-data:www-data /var/www/html\n\
 exec apache2-foreground\n\
 ' > /usr/local/bin/start-laravel.sh
 
