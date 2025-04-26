@@ -27,7 +27,8 @@ RUN pecl install mongodb && docker-php-ext-enable mongodb
 # Configure PHP to display errors
 RUN echo "display_errors = On" >> /usr/local/etc/php/conf.d/error-reporting.ini \
     && echo "display_startup_errors = On" >> /usr/local/etc/php/conf.d/error-reporting.ini \
-    && echo "error_reporting = E_ALL" >> /usr/local/etc/php/conf.d/error-reporting.ini
+    && echo "error_reporting = E_ALL" >> /usr/local/etc/php/conf.d/error-reporting.ini \
+    && echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/memory-limit.ini
 
 # Create a specific Apache configuration
 RUN echo '<VirtualHost *:80>\n\
@@ -63,39 +64,43 @@ RUN mkdir -p storage/framework/sessions \
 RUN chmod -R 775 storage bootstrap/cache
 RUN chmod -R 755 public
 
-# Create a script to generate .env file from environment variables
-RUN echo '#!/bin/bash\n\
-echo "APP_NAME=\${APP_NAME:-MySecureVault}" > .env\n\
-echo "APP_ENV=production" >> .env\n\
-echo "APP_KEY=\${APP_KEY}" >> .env\n\
-echo "APP_DEBUG=true" >> .env\n\
-echo "APP_URL=\${RENDER_EXTERNAL_URL}" >> .env\n\
-echo "LOG_CHANNEL=stack" >> .env\n\
-echo "LOG_LEVEL=debug" >> .env\n\
-echo "DB_CONNECTION=\${DB_CONNECTION}" >> .env\n\
-echo "DB_HOST=\${DB_HOST}" >> .env\n\
-echo "DB_PORT=\${DB_PORT}" >> .env\n\
-echo "DB_DATABASE=\${DB_DATABASE}" >> .env\n\
-echo "DB_USERNAME=\${DB_USERNAME}" >> .env\n\
-echo "DB_PASSWORD=\${DB_PASSWORD}" >> .env\n\
-echo "MONGODB_URI=\${MONGODB_URI}" >> .env\n\
-echo "CACHE_DRIVER=\${CACHE_DRIVER:-file}" >> .env\n\
-echo "SESSION_DRIVER=\${SESSION_DRIVER:-file}" >> .env\n\
-echo "QUEUE_CONNECTION=sync" >> .env\n\
-echo "MAIL_MAILER=\${MAIL_MAILER:-smtp}" >> .env\n\
-echo "MAIL_HOST=\${MAIL_HOST}" >> .env\n\
-echo "MAIL_PORT=\${MAIL_PORT}" >> .env\n\
-echo "MAIL_USERNAME=\${MAIL_USERNAME}" >> .env\n\
-echo "MAIL_PASSWORD=\${MAIL_PASSWORD}" >> .env\n\
-echo "MAIL_ENCRYPTION=\${MAIL_ENCRYPTION:-tls}" >> .env\n\
-echo "MAIL_FROM_ADDRESS=\${MAIL_FROM_ADDRESS}" >> .env\n\
-apache2-foreground\n\
-' > /usr/local/bin/start-apache
+# Create a static .env file for Laravel
+RUN echo "APP_NAME=MySecureVault\n\
+APP_ENV=production\n\
+APP_KEY=base64:qxSzYJ7RRJRf7+OWcblSCmYVxlXQcpMFLLnFmGM92sw=\n\
+APP_DEBUG=true\n\
+APP_URL=https://mysecurevault-3.onrender.com\n\
+\n\
+LOG_CHANNEL=stack\n\
+LOG_LEVEL=debug\n\
+\n\
+DB_CONNECTION=mongodb\n\
+DB_HOST=cluster0.1pi1ngi.mongodb.net\n\
+DB_PORT=27017\n\
+DB_DATABASE=my_project\n\
+DB_USERNAME=kmadhurendra59\n\
+DB_PASSWORD=iJ7T6o9RPJVeN9Vj\n\
+MONGODB_URI=mongodb+srv://kmadhurendra59:iJ7T6o9RPJVeN9Vj@cluster0.1pi1ngi.mongodb.net/my_project?retryWrites=true&w=majority\n\
+\n\
+BROADCAST_DRIVER=log\n\
+CACHE_DRIVER=file\n\
+SESSION_DRIVER=file\n\
+SESSION_LIFETIME=120\n\
+QUEUE_CONNECTION=sync\n\
+\n\
+MAIL_MAILER=smtp\n\
+MAIL_HOST=mailpit\n\
+MAIL_PORT=1025\n\
+MAIL_USERNAME=null\n\
+MAIL_PASSWORD=null\n\
+MAIL_ENCRYPTION=null\n\
+MAIL_FROM_ADDRESS=\"hello@example.com\"\n\
+MAIL_FROM_NAME=\"${APP_NAME}\"\n\
+" > /var/www/html/.env
 
-RUN chmod +x /usr/local/bin/start-apache
-
-# Install the MongoDB PHP library globally
-RUN composer require mongodb/mongodb --prefer-dist
+# Install MongoDB PHP library and Laravel MongoDB package
+RUN composer require mongodb/mongodb
+RUN composer require jenssegers/mongodb
 
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction
@@ -103,14 +108,13 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 # Build frontend assets
 RUN npm install && npm run build
 
-# Create test files for debugging in multiple locations
-RUN echo "<?php phpinfo(); ?>" > /var/www/html/test.php
-RUN echo "<?php echo 'Public directory test'; phpinfo(); ?>" > /var/www/html/public/test.php
-RUN echo '<html><body><h1>Root index test</h1><p>This is a test file in the root directory.</p></body></html>' > /var/www/html/index.html
+# Create diagnostic files
+RUN echo '<?php phpinfo(); ?>' > /var/www/html/test.php
+RUN echo '<?php phpinfo(); ?>' > /var/www/html/public/phpinfo.php
 
 # Make sure all files are readable by Apache
 RUN chown -R www-data:www-data /var/www/html
 
 # Expose port and start Apache
 EXPOSE 80
-CMD ["/usr/local/bin/start-apache"] 
+CMD ["apache2-foreground"] 
