@@ -2,11 +2,10 @@
 # Exit on error
 set -o errexit
 
-echo "Debugging directory structure..."
-echo "Current directory: $(pwd)"
+APP_DIR=$(pwd)
+echo "Current application directory: $APP_DIR"
+echo "Directory contents:"
 ls -la
-echo "Checking public directory..."
-ls -la public || echo "Public directory not found!"
 
 echo "Installing dependencies for MongoDB..."
 apt-get update && apt-get install -y libssl-dev pkg-config
@@ -20,38 +19,36 @@ echo "extension=mongodb.so" > /etc/php/8.2/fpm/conf.d/20-mongodb.ini
 
 echo "Configure Apache..."
 a2enmod rewrite
-echo '<VirtualHost *:80>
-    ServerAdmin webmaster@localhost
-    ServerName mysecurevault.onrender.com
-    DocumentRoot /var/www/html/public
-    
-    <Directory /var/www/html/public>
+
+# Create a very simple Apache config that points directly to the public directory
+cat > /etc/apache2/sites-available/000-default.conf << 'EOL'
+<VirtualHost *:80>
+    ServerName localhost
+    DocumentRoot APP_DIR_PLACEHOLDER/public
+
+    <Directory APP_DIR_PLACEHOLDER/public>
         AllowOverride All
         Require all granted
         Options -Indexes +FollowSymLinks
         DirectoryIndex index.php index.html
     </Directory>
-    
+
     ErrorLog ${APACHE_LOG_DIR}/error.log
     CustomLog ${APACHE_LOG_DIR}/access.log combined
-</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
+</VirtualHost>
+EOL
+
+# Replace placeholder with actual app directory
+sed -i "s|APP_DIR_PLACEHOLDER|$APP_DIR|g" /etc/apache2/sites-available/000-default.conf
 
 # Add global ServerName to suppress warning
-echo 'ServerName mysecurevault.onrender.com' >> /etc/apache2/apache2.conf
+echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Make sure the system knows where the app is
-echo "Checking if /var/www/html exists..."
-if [ ! -d "/var/www/html" ]; then
-    echo "Creating /var/www/html directory..."
-    mkdir -p /var/www/html
-fi
+echo "Final Apache configuration:"
+cat /etc/apache2/sites-available/000-default.conf
 
-echo "Current directory content:"
-ls -la
-echo "Copying all files to /var/www/html..."
-cp -R . /var/www/html/
-echo "Setting correct permissions for /var/www/html..."
-chown -R www-data:www-data /var/www/html
+echo "Public directory contents:"
+ls -la $APP_DIR/public || echo "Public directory not found!"
 
 echo "Install project dependencies..."
 composer install --no-interaction --no-dev --prefer-dist
@@ -59,6 +56,9 @@ composer install --no-interaction --no-dev --prefer-dist
 echo "Building frontend assets..."
 npm install
 npm run build
+
+echo "Checking public directory after build:"
+ls -la $APP_DIR/public || echo "Public directory not found after build!"
 
 echo "Caching configuration..."
 php artisan config:cache
@@ -68,12 +68,13 @@ php artisan view:cache
 echo "Setting appropriate permissions..."
 chmod -R 775 storage bootstrap/cache
 chmod -R 755 public
-chown -R www-data:www-data .
 
-echo "Checking final directory structure..."
-echo "Root directory:"
-ls -la /var/www/html/
-echo "Public directory:"
-ls -la /var/www/html/public/
+echo "Debug: Checking Laravel public/index.php"
+if [ -f "$APP_DIR/public/index.php" ]; then
+    echo "index.php exists in public directory"
+    cat $APP_DIR/public/index.php | head -n 5
+else
+    echo "ERROR: index.php not found in public directory!"
+fi
 
 echo "Build completed!" 

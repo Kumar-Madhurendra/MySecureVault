@@ -4,15 +4,15 @@ services:
     env: php
     plan: free
     buildCommand: ./render-build.sh
-    startCommand: PORT=80 apache2-foreground
-    healthCheckPath: /health
+    startCommand: apache2-foreground
+    healthCheckPath: /test.php
     envVars:
       - key: APP_KEY
         generateValue: true
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
-        value: false
+        value: true
       - key: APACHE_DOCUMENT_ROOT
         value: /var/www/html/public
       - key: DB_CONNECTION
