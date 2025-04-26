@@ -12,13 +12,18 @@ RUN apt-get update && apt-get install -y \
     npm \
     nodejs \
     autoconf \
-    build-essential
+    build-essential \
+    libssl-dev \
+    pkg-config
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+
+# Install MongoDB PHP extension BEFORE composer install
+RUN pecl install mongodb && docker-php-ext-enable mongodb
 
 # Set working directory
 WORKDIR /var/www/html
@@ -39,16 +44,8 @@ RUN mkdir -p storage/framework/sessions \
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Create a temporary composer.json without MongoDB dependency
-RUN cp composer.json composer.json.bak && \
-    cat composer.json | grep -v "mongodb/laravel-mongodb" > composer.json.temp && \
-    mv composer.json.temp composer.json
-
-# Install dependencies without MongoDB
-RUN composer install --no-dev --no-scripts
-
-# Restore original composer.json
-RUN mv composer.json.bak composer.json
+# Install dependencies (with MongoDB extension already installed)
+RUN composer install --no-scripts --no-dev
 
 # Run npm build for assets
 RUN npm install && npm run build
@@ -56,12 +53,6 @@ RUN npm install && npm run build
 # Apache config
 RUN a2enmod rewrite
 COPY ./.docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
-
-# Add MongoDB PHP extension after composer has installed dependencies
-RUN pecl install mongodb && docker-php-ext-enable mongodb
-
-# Install MongoDB PHP driver via Composer now that the extension is available
-RUN composer require mongodb/laravel-mongodb --no-scripts --update-no-dev
 
 # Expose port
 EXPOSE 8080

@@ -2,6 +2,9 @@
 # Exit on error
 set -o errexit
 
+echo "Installing dependencies for MongoDB..."
+apt-get update && apt-get install -y libssl-dev pkg-config
+
 echo "Installing PHP extensions for MongoDB..."
 pecl install mongodb
 
