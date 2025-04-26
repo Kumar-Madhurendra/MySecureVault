@@ -26,6 +26,9 @@ class User extends MongoDBAuthenticatable
         'name',
         'email',
         'password',
+        'provider',
+        'provider_id',
+        'avatar'
     ];
 
     /**

@@ -1,6 +1,7 @@
 <?php
 use App\Http\Controllers\MediaController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\SocialAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,6 +26,10 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Auth::routes();
+
+// Social Login Routes
+Route::get('login/{provider}', [SocialAuthController::class, 'redirectToProvider'])->name('social.login');
+Route::get('login/{provider}/callback', [SocialAuthController::class, 'handleProviderCallback'])->name('social.callback');
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 

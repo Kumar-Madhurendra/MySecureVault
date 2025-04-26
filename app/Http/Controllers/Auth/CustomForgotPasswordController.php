@@ -33,7 +33,7 @@ class CustomForgotPasswordController extends Controller
                 Log::info('User not found for password reset: ' . $email);
                 return back()->withErrors(['email' => 'We could not find a user with that email address.']);
             }
-            
+
             // Generate a new reset token
             $token = Str::random(64);
             
