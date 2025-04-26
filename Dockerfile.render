@@ -63,6 +63,37 @@ RUN mkdir -p storage/framework/sessions \
 RUN chmod -R 775 storage bootstrap/cache
 RUN chmod -R 755 public
 
+# Create a script to generate .env file from environment variables
+RUN echo '#!/bin/bash\n\
+echo "APP_NAME=\${APP_NAME:-MySecureVault}" > .env\n\
+echo "APP_ENV=production" >> .env\n\
+echo "APP_KEY=\${APP_KEY}" >> .env\n\
+echo "APP_DEBUG=true" >> .env\n\
+echo "APP_URL=\${RENDER_EXTERNAL_URL}" >> .env\n\
+echo "LOG_CHANNEL=stack" >> .env\n\
+echo "LOG_LEVEL=debug" >> .env\n\
+echo "DB_CONNECTION=\${DB_CONNECTION}" >> .env\n\
+echo "DB_HOST=\${DB_HOST}" >> .env\n\
+echo "DB_PORT=\${DB_PORT}" >> .env\n\
+echo "DB_DATABASE=\${DB_DATABASE}" >> .env\n\
+echo "DB_USERNAME=\${DB_USERNAME}" >> .env\n\
+echo "DB_PASSWORD=\${DB_PASSWORD}" >> .env\n\
+echo "MONGODB_URI=\${MONGODB_URI}" >> .env\n\
+echo "CACHE_DRIVER=\${CACHE_DRIVER:-file}" >> .env\n\
+echo "SESSION_DRIVER=\${SESSION_DRIVER:-file}" >> .env\n\
+echo "QUEUE_CONNECTION=sync" >> .env\n\
+echo "MAIL_MAILER=\${MAIL_MAILER:-smtp}" >> .env\n\
+echo "MAIL_HOST=\${MAIL_HOST}" >> .env\n\
+echo "MAIL_PORT=\${MAIL_PORT}" >> .env\n\
+echo "MAIL_USERNAME=\${MAIL_USERNAME}" >> .env\n\
+echo "MAIL_PASSWORD=\${MAIL_PASSWORD}" >> .env\n\
+echo "MAIL_ENCRYPTION=\${MAIL_ENCRYPTION:-tls}" >> .env\n\
+echo "MAIL_FROM_ADDRESS=\${MAIL_FROM_ADDRESS}" >> .env\n\
+apache2-foreground\n\
+' > /usr/local/bin/start-apache
+
+RUN chmod +x /usr/local/bin/start-apache
+
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
@@ -79,4 +110,4 @@ RUN chown -R www-data:www-data /var/www/html
 
 # Expose port and start Apache
 EXPOSE 80
-CMD ["apache2-foreground"] 
+CMD ["/usr/local/bin/start-apache"] 
