@@ -24,10 +24,23 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 # Install MongoDB PHP extension
 RUN pecl install mongodb && docker-php-ext-enable mongodb
 
-# Configure Apache
+# Create a specific Apache configuration
+RUN echo '<VirtualHost *:80>\n\
+    ServerAdmin webmaster@localhost\n\
+    DocumentRoot /var/www/html/public\n\
+    \n\
+    <Directory /var/www/html/public>\n\
+        Options Indexes FollowSymLinks\n\
+        AllowOverride All\n\
+        Require all granted\n\
+    </Directory>\n\
+    \n\
+    ErrorLog ${APACHE_LOG_DIR}/error.log\n\
+    CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
+</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
+
+# Enable Apache modules
 RUN a2enmod rewrite
-RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
 # Copy application code
 COPY . /var/www/html/
@@ -43,6 +56,7 @@ RUN mkdir -p storage/framework/sessions \
 
 # Set correct permissions
 RUN chmod -R 775 storage bootstrap/cache
+RUN chmod -R 755 public
 
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction
@@ -50,9 +64,13 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 # Build frontend assets
 RUN npm install && npm run build
 
-# Create test files for debugging
+# Create test files for debugging in multiple locations
 RUN echo "<?php phpinfo(); ?>" > /var/www/html/test.php
-RUN echo "<?php echo 'Public directory test'; ?>" > /var/www/html/public/test.php
+RUN echo "<?php echo 'Public directory test'; phpinfo(); ?>" > /var/www/html/public/test.php
+RUN echo '<html><body><h1>Root index test</h1><p>This is a test file in the root directory.</p></body></html>' > /var/www/html/index.html
+
+# Make sure all files are readable by Apache
+RUN chown -R www-data:www-data /var/www/html
 
 # Expose port and start Apache
 EXPOSE 80

@@ -4,7 +4,7 @@ services:
     env: docker
     plan: free
     dockerfilePath: Dockerfile.render
-    healthCheckPath: /test.php
+    healthCheckPath: /index.html
     envVars:
       - key: APP_KEY
         generateValue: true
