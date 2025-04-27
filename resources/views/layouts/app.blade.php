@@ -15,12 +15,6 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Custom Responsive CSS -->
-    <link href="{{ asset('css/responsive.css') }}" rel="stylesheet">
-
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 
@@ -48,22 +42,6 @@
         .table th {
             font-weight: 500;
         }
-        
-        /* Responsive navbar styles */
-        @media (max-width: 767px) {
-            .navbar-brand {
-                font-size: 1.25rem;
-            }
-            
-            .navbar-toggler {
-                border: none;
-                padding: 0.25rem 0.5rem;
-            }
-            
-            .navbar-collapse {
-                margin-top: 0.5rem;
-            }
-        }
     </style>
 
     @stack('styles')
@@ -72,13 +50,10 @@
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-white">
             <div class="container">
-                <a style="color: rgb(3,123,255);" class="navbar-brand" href="{{ url('/') }}">
-                    MySecureVault
-                </a>
-                
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+            <a style="color: rgb(3,123,255);;"class="navbar-brand" href="{{ url('/') }}">
+    MySecureVault
+</a>
+                 
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
@@ -141,9 +116,6 @@
         </main>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
     @stack('scripts')
 </body>
 </html>
