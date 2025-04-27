@@ -72,6 +72,7 @@ APP_ENV=production\n\
 APP_KEY=base64:qxSzYJ7RRJRf7+OWcblSCmYVxlXQcpMFLLnFmGM92sw=\n\
 APP_DEBUG=true\n\
 APP_URL=https://mysecurevault-3.onrender.com\n\
+ASSET_URL=\${APP_URL}\n\
 \n\
 LOG_CHANNEL=stack\n\
 LOG_LEVEL=debug\n\
@@ -83,9 +84,16 @@ DB_DATABASE=my_project\n\
 DB_USERNAME=kmadhurendra59\n\
 DB_PASSWORD=iJ7T6o9RPJVeN9Vj\n\
 MONGODB_URI=mongodb+srv://kmadhurendra59:iJ7T6o9RPJVeN9Vj@cluster0.1pi1ngi.mongodb.net/my_project?retryWrites=true&w=majority\n\
+MONGO_DB_URI=mongodb+srv://kmadhurendra59:iJ7T6o9RPJVeN9Vj@cluster0.1pi1ngi.mongodb.net/my_project?retryWrites=true&w=majority\n\
+MONGO_DB_DATABASE=my_project\n\
+MONGO_DB_HOST=cluster0.1pi1ngi.mongodb.net\n\
+MONGO_DB_USERNAME=kmadhurendra59\n\
+MONGO_DB_PASSWORD=iJ7T6o9RPJVeN9Vj\n\
+MONGO_DB_AUTHENTICATION_DATABASE=admin\n\
 \n\
 BROADCAST_DRIVER=log\n\
 CACHE_DRIVER=file\n\
+CACHE_STORE=file\n\
 SESSION_DRIVER=file\n\
 SESSION_LIFETIME=120\n\
 QUEUE_CONNECTION=sync\n\
@@ -97,7 +105,7 @@ MAIL_USERNAME=null\n\
 MAIL_PASSWORD=null\n\
 MAIL_ENCRYPTION=null\n\
 MAIL_FROM_ADDRESS=\"hello@example.com\"\n\
-MAIL_FROM_NAME=\"${APP_NAME}\"\n\
+MAIL_FROM_NAME=\"\${APP_NAME}\"\n\
 " > /var/www/html/.env
 
 # Install MongoDB PHP library and Laravel MongoDB package

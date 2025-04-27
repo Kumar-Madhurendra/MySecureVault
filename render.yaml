@@ -12,6 +12,17 @@ services:
         value: production
       - key: APP_DEBUG
         value: true
+      - key: APP_URL
+        sync: false
+      - key: ASSET_URL
+        fromService:
+          type: web
+          name: MySecureVault
+          envVarKey: APP_URL
+      - key: SESSION_DRIVER
+        value: file
+      - key: CACHE_STORE
+        value: file
       - key: DB_CONNECTION
         value: mongodb
       - key: DB_HOST
@@ -25,6 +36,14 @@ services:
       - key: DB_PASSWORD
         sync: false
       - key: MONGODB_URI
+        sync: false
+      - key: MONGO_DB_URI
+        sync: false
+      - key: MONGO_DB_DATABASE
+        sync: false
+      - key: MONGO_DB_USERNAME
+        sync: false  
+      - key: MONGO_DB_PASSWORD
         sync: false
       - key: MAIL_MAILER
         value: smtp
@@ -40,6 +59,7 @@ services:
         value: tls
       - key: MAIL_FROM_ADDRESS
         sync: false
+    buildCommand: ./render-build.sh && ./render-fix-assets.sh
 
 databases:
   - name: mongodb
