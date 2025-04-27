@@ -95,10 +95,10 @@ return [
 
         'mongodb' => [
             'driver' => 'mongodb',
-            'dsn' => env('MONGODB_URI', 'mongodb://localhost:27017'),
-            'database' => env('DB_DATABASE', 'homestead'),
+            'dsn' => env('MONGO_DB_URI', 'mongodb://localhost:27017'),
+            'database' => env('MONGO_DB_DATABASE', 'homestead'),
             'options' => [
-                'database' => env('DB_AUTHENTICATION_DATABASE', 'admin'),
+                'database' => env('MONGO_DB_AUTHENTICATION_DATABASE', 'admin'),
                 'retryWrites' => true,
                 'w' => 'majority',
             ],

@@ -36,3 +36,18 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::get('/health', function () {
     return response()->json(['status' => 'healthy']);
 });
+
+// Diagnostic routes
+Route::get('/mongodb-check', function () {
+    try {
+        $info = \App\Models\Media::connectionInfo();
+        return response()->json($info);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'extension_loaded' => extension_loaded('mongodb')
+        ], 500);
+    }
+});

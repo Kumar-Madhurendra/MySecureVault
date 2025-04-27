@@ -22,8 +22,9 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-# Install MongoDB PHP extension BEFORE composer install
-RUN pecl install mongodb && docker-php-ext-enable mongodb
+# Install MongoDB PHP extension
+RUN pecl install mongodb && \
+    docker-php-ext-enable mongodb
 
 # Set working directory
 WORKDIR /var/www/html
