@@ -1,0 +1,181 @@
+/* Responsive Design Fixes */
+
+/* Base mobile styles */
+@media (max-width: 767px) {
+    /* General fixes */
+    h1.display-4 {
+        font-size: 2rem !important;
+    }
+    
+    p.lead {
+        font-size: 1rem !important;
+    }
+    
+    /* Make images visible on mobile */
+    .d-none.d-lg-block {
+        display: block !important;
+    }
+    
+    /* Mobile image styling */
+    .welcome-image {
+        max-width: 80%;
+        margin: 2rem auto;
+        display: block;
+    }
+    
+    /* Button fixes */
+    .btn-lg {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+    }
+    
+    /* Card adjustments */
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    /* Feature section spacing */
+    .feature-icon {
+        margin-bottom: 1rem !important;
+    }
+    
+    /* Footer adjustments */
+    [style*="flex: 0 0 25%"] {
+        flex: 0 0 100% !important;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Navigation improvements */
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+    
+    .navbar-collapse {
+        background-color: white;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Layout adjustments */
+    .min-vh-100 {
+        min-height: auto !important;
+        padding: 2rem 0;
+    }
+    
+    /* Fix spacing */
+    .py-5 {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+    }
+    
+    .mb-5 {
+        margin-bottom: 1.5rem !important;
+    }
+}
+
+/* Medium devices */
+@media (min-width: 768px) and (max-width: 991px) {
+    /* Show images on medium screens but adjust size */
+    .d-none.d-lg-block {
+        display: block !important;
+    }
+    
+    .welcome-image {
+        max-width: 60%;
+        margin: 0 auto;
+        display: block;
+    }
+    
+    /* Text size adjustments */
+    h1.display-4 {
+        font-size: 2.5rem !important;
+    }
+    
+    /* Feature grid adjustments */
+    .col-lg-3.col-md-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+}
+
+/* Animation for better UX */
+.transition-all {
+    transition: all 0.3s ease-in-out;
+}
+
+.shadow-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+}
+
+/* Additional utilities */
+.bg-gradient-to-r {
+    background: linear-gradient(to right, var(--from-color, #f8f9fa), var(--to-color, #e9ecef));
+}
+
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ensure images don't break layout */
+img.img-fluid {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Fix any container overflow issues */
+.container {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+    overflow-x: hidden;
+}
+
+/* Ensure buttons don't overflow on small screens */
+.d-flex.gap-3 {
+    flex-wrap: wrap;
+}
+
+.d-flex.gap-3 .btn {
+    margin-bottom: 0.5rem;
+}
+
+/* Fix navbar toggle button on mobile */
+.navbar-toggler {
+    padding: 0.25rem 0.5rem;
+    font-size: 1rem;
+}
+
+/* Make tables responsive */
+table {
+    width: 100%;
+    overflow-x: auto;
+    display: block;
+}
+
+@media (min-width: 768px) {
+    table {
+        display: table;
+    }
+}
+
+/* Utility classes for mobile spacing */
+.mb-sm-3 {
+    margin-bottom: 1rem !important;
+}
+
+.mt-sm-3 {
+    margin-top: 1rem !important;
+}
+
+.p-sm-2 {
+    padding: 0.5rem !important;
+} 
