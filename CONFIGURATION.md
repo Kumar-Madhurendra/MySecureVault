@@ -21,14 +21,7 @@ CACHE_STORE=file
 
 This application uses MongoDB for the media storage functionality. Make sure these variables are properly configured in your `.env` file:
 
-```
-MONGO_DB_CONNECTION=mongodb
-MONGO_DB_URI=mongodb+srv://username:password@cluster.mongodb.net/database?retryWrites=true&w=majority
-MONGO_DB_DATABASE=your_database_name
-MONGO_DB_USERNAME=your_username
-MONGO_DB_PASSWORD=your_password
-MONGO_DB_AUTHENTICATION_DATABASE=admin
-```
+ 
 
 ## Troubleshooting
 
